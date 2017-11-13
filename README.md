@@ -21,7 +21,7 @@ require __DIR__ . '/vendor/autoload.php';
 $httpClient = new \GuzzleHttp\Client();
 $parameters = [
     'userid' => 'FIS_USER',
-    'pwd' => 'FIS_PASSWORD,
+    'pwd' => 'FIS_PASSWORD',
     'sourceid' => 'FIS_SOURCE_ID',
     'fisCertificate' => 'FIS_CERTIFICATE_FILEPATH',
     'fisCerticatePassword' => 'FIS_CERTIFICATE_PASSWORD'
