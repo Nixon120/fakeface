@@ -72,7 +72,7 @@ class Client
         return $this;
     }
 
-    public function isDevelopmentMode():int
+    public function isDevelopmentMode():bool
     {
         return $this->development === true;
     }
@@ -87,7 +87,7 @@ class Client
             'ProxyKey' => $proxyKey
         ];
 
-        if($this->dispatchRequest("a2a/CO_GetPurseAcct_ByCardnum.asp", $proxy) === false) {
+        if ($this->dispatchRequest("a2a/CO_GetPurseAcct_ByCardnum.asp", $proxy) === false) {
             return false;
         }
 
@@ -114,7 +114,7 @@ class Client
             'PersonID' => $fisPersonId
         ];
 
-        if($this->dispatchRequest("a2a/CO_GetPersonInfo.asp", $proxy) === false) {
+        if ($this->dispatchRequest("a2a/CO_GetPersonInfo.asp", $proxy) === false) {
             return false;
         }
 
@@ -140,7 +140,7 @@ class Client
      */
     public function createPerson(PersonRequest $request)
     {
-        if($this->dispatchRequest("a2a/CO_CREATEPERSON.asp", $request->toArray()) === false) {
+        if ($this->dispatchRequest("a2a/CO_CREATEPERSON.asp", $request->toArray()) === false) {
             throw new FisException('Unable to create vendor card account');
         }
 
@@ -154,7 +154,7 @@ class Client
      */
     public function createCard(CardCreateRequest $request)
     {
-        if($this->dispatchRequest("a2a/CO_AssignCard2ExistingPerson.asp", $request->toArray()) === false) {
+        if ($this->dispatchRequest("a2a/CO_AssignCard2ExistingPerson.asp", $request->toArray()) === false) {
             throw new FisException('Unable to create vendor card');
         }
 
@@ -169,7 +169,7 @@ class Client
      */
     public function loadCard(CardLoadRequest $card): Client
     {
-        if($this->dispatchRequest("a2a/CO_LoadValue.asp", $card->toArray()) === false) {
+        if ($this->dispatchRequest("a2a/CO_LoadValue.asp", $card->toArray()) === false) {
             throw new FisException('Unable to load panelist card');
         }
 
@@ -188,7 +188,7 @@ class Client
             "Status" => "ACTIVATE"
         ];
 
-        if($this->dispatchRequest("a2a/CO_StatusAcct.asp", $activation) === false) {
+        if ($this->dispatchRequest("a2a/CO_StatusAcct.asp", $activation) === false) {
             throw new FisException('Unable to activate panelist card');
         }
 
@@ -199,7 +199,7 @@ class Client
      * @param $action
      * @return string
      */
-    private function prepareUrl(string $action): string
+    public function getUrl(string $action): string
     {
         $this->requestParameters['clientid'] = $this->getClientId();
         $url = $this->development === true ? 'https://a2a.uatfisprepaid.com' : 'https://a2a.fisprepaid.com';
@@ -217,7 +217,7 @@ class Client
      */
     private function dispatchRequest($action, array $request): bool
     {
-        $url = $this->prepareUrl($action);
+        $url = $this->getUrl($action);
         $response = $this->httpClient->request(
             'POST',
             $url,
@@ -231,11 +231,11 @@ class Client
         );
 
         if ($response->getStatusCode() !== 200) {
-            throw new \Exception('Cannot connect to FIS for payload delivery.');
+            throw new FisException('Cannot connect to FIS for payload delivery.');
         }
 
         $this->setResponseString((string)$response->getBody());
-        if($this->isRequestAccepted()) {
+        if ($this->isRequestAccepted()) {
             //@TODO pipe traversal would be nice here
             $this->setResponse(
                 $this->formatResponse(
@@ -261,7 +261,7 @@ class Client
     private function formatResponse(string $responseString): array
     {
         $response = substr($responseString, 2);
-        $response = substr($response, 0,-1);
+        $response = substr($response, 0, -1);
         return explode("|", $response);
     }
 
