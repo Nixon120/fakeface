@@ -1,9 +1,10 @@
 <?php
 namespace AllDigitalRewards\FIS\Entity;
 
+use AllDigitalRewards\FIS\Interfaces\Validateable;
 use Respect\Validation\Validator;
 
-class CardLoadRequest extends AbstractFisEntity
+class CardLoadRequest extends AbstractFisEntity implements Validateable
 {
     public $cardnum;
 
@@ -50,5 +51,4 @@ class CardLoadRequest extends AbstractFisEntity
 //            ->attribute('personId', Validator::alnum()->length(1, 35));
 //            ->attribute('last', Validator::alnum()->length(1, 25));
     }
-
 }
