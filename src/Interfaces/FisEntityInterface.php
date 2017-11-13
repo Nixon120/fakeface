@@ -1,7 +1,8 @@
 <?php
 namespace AllDigitalRewards\FIS\Interfaces;
 
-interface FisEntityInterface {
+interface FisEntityInterface
+{
     public function getValidator();
 
     public function toArray():array;
