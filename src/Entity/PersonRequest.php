@@ -1,10 +1,10 @@
 <?php
 namespace AllDigitalRewards\FIS\Entity;
 
-use Respect\Validation\Exceptions\NestedValidationException;
+use AllDigitalRewards\FIS\Interfaces\Validateable;
 use Respect\Validation\Validator;
 
-class PersonRequest extends AbstractFisEntity
+class PersonRequest extends AbstractFisEntity implements Validateable
 {
     public $firstname;
 

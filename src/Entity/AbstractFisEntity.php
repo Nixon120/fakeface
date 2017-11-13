@@ -1,11 +1,12 @@
 <?php
 namespace AllDigitalRewards\FIS\Entity;
 
+use AllDigitalRewards\FIS\Exception\FisException;
 use AllDigitalRewards\FIS\Interfaces\FisEntityInterface;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator;
 
-abstract class AbstractFisEntity implements FisEntityInterface
+abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterface
 {
     public function __construct(?array $data = null)
     {
@@ -40,7 +41,7 @@ abstract class AbstractFisEntity implements FisEntityInterface
      */
     public function getValidator()
     {
-        throw new \Exception('Entity does not have validation rules');
+        throw new FisException('Entity does not have validation rules');
     }
 
     public function toArray():array
@@ -66,6 +67,15 @@ abstract class AbstractFisEntity implements FisEntityInterface
             }
         }
         return $this;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     private function getSetterMethod($propertyName)

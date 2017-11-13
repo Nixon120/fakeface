@@ -1,9 +1,10 @@
 <?php
 namespace AllDigitalRewards\FIS\Entity;
 
+use AllDigitalRewards\FIS\Interfaces\Validateable;
 use Respect\Validation\Validator;
 
-class CardCreateRequest extends AbstractFisEntity
+class CardCreateRequest extends AbstractFisEntity implements Validateable
 {
     public $ssn = 999999999;
 
