@@ -8,7 +8,7 @@ Via Composer
 
 ``` bash
 composer config repositories.rap vcs git@bitbucket.org:alldigitalrewards/fis.git
-$ composer require alldigitalrewards/fis
+composer require alldigitalrewards/fis
 ```
 
 ## Usage

@@ -10,15 +10,13 @@ use AllDigitalRewards\FIS\Exception\FisException;
 
 class Client
 {
-    private $url;
-
     private $certificate;
 
     private $password;
 
-    private $requestParameters;
+    private $development = true;
 
-    private $logPath;
+    private $requestParameters;
 
     private $httpClient;
 
@@ -40,7 +38,7 @@ class Client
     /**
      * constructor
      */
-    public function __construct(\GuzzleHttp\Client $httpClient, array $parameters)
+    public function __construct(\GuzzleHttp\Client $httpClient, array $parameters, $development = true)
     {
         $this->httpClient = $httpClient;
         $this->requestParameters = [
@@ -49,9 +47,8 @@ class Client
             'sourceid' => $parameters['sourceId']
         ];
         $this->certificate = $parameters['fisCertificate'];
-        $this->password = $parameters['fisPassword'];
-        $this->logPath = $parameters['logPath'];
-        $this->url = $parameters['fisApiUrl'];
+        $this->password = $parameters['fisCertificatePassword'];
+        $this->development = $development;
     }
 
     /**
@@ -67,6 +64,17 @@ class Client
     public function getClientId():int
     {
         return $this->clientId;
+    }
+
+    public function setDevelopment(bool $development): Client
+    {
+        $this->development = $development;
+        return $this;
+    }
+
+    public function isDevelopmentMode():int
+    {
+        return $this->development === true;
     }
 
     /**
@@ -194,7 +202,8 @@ class Client
     private function prepareUrl(string $action): string
     {
         $this->requestParameters['clientid'] = $this->getClientId();
-        $url = $this->url . '/' . $action . '?' . http_build_query($this->requestParameters);
+        $url = $this->development === true ? 'https://a2a.uatfisprepaid.com' : 'https://a2a.fisprepaid.com';
+        $url = $url . '/' . $action . '?' . http_build_query($this->requestParameters);
         return $url;
     }
 
