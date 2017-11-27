@@ -28,9 +28,8 @@ class EntityTest extends TestCase
 
     public function testIsNotValidatable()
     {
-        $person = new Person;
-        $person->isValid();
-        $this->expectException(FisException::class);
+        $person = new PersonRequest;
+        $this->assertFalse($person->isValid());
     }
 
     /**
