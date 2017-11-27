@@ -39,6 +39,16 @@ class Card extends AbstractFisEntity
         $this->number = $number;
     }
 
+    public function getMaskedNumber(): string
+    {
+        return substr_replace(
+            $this->getNumber(),
+            'xxxxxxxxxxxx',
+            0,
+            12
+        );
+    }
+
     /**
      * @return string
      */
@@ -92,7 +102,7 @@ class Card extends AbstractFisEntity
      */
     public function getBalance()
     {
-        return $this->balance;
+        return number_format($this->balance, 2, '.', '');
     }
 
     /**
