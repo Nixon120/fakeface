@@ -142,7 +142,7 @@ class Client
      */
     public function getCardTransactions(Card $card, ?\DateTime $fromDate = null, int $days = 90): array
     {
-        if($fromDate === null) {
+        if ($fromDate === null) {
             //If no start date is provided, use 90 days ago.
             $fromDate = (new \DateTime);
         }
@@ -155,7 +155,7 @@ class Client
             'StartDate' => $fromDate->format('Y-m-d')
         ];
 
-        if($this->dispatchRequest("/a2a/CO_GetCardTxns.asp", $cardTransactionLookupConditions) === false) {
+        if ($this->dispatchRequest("/a2a/CO_GetCardTxns.asp", $cardTransactionLookupConditions) === false) {
             //FIS returns 0 on empty result set.
             return [];
         }
@@ -173,9 +173,8 @@ class Client
         $transactionResponseArray = array_chunk($response, 6);
         $transactionContainer = [];
 
-        foreach($transactionResponseArray as $transaction) {
-            if (
-                strpos($transaction[5], 'Non-Mon Update') !== false
+        foreach ($transactionResponseArray as $transaction) {
+            if (strpos($transaction[5], 'Non-Mon Update') !== false
                 || strpos($transaction[5], 'Decline') !== false
             ) {
                 continue;
@@ -319,8 +318,7 @@ class Client
             'newPIN' => $pin
         ];
 
-        if (
-            strlen($pin) !== 4
+        if (strlen($pin) !== 4
             || ctype_digit($pin) === false
             || $this->dispatchRequest("a2a/CO_ChangePIN.asp", $changePinRequest) === false
         ) {

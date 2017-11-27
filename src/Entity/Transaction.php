@@ -102,7 +102,7 @@ class Transaction extends AbstractFisEntity
 
     public function getDisplayAmount()
     {
-        if($this->isDebit()) {
+        if ($this->isDebit()) {
             return '-' . $this->getAmount();
         }
 
