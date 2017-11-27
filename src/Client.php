@@ -6,6 +6,7 @@ use AllDigitalRewards\FIS\Entity\CardCreateRequest;
 use AllDigitalRewards\FIS\Entity\CardLoadRequest;
 use AllDigitalRewards\FIS\Entity\PersonRequest;
 use AllDigitalRewards\FIS\Entity\Person;
+use AllDigitalRewards\FIS\Entity\Transaction;
 use AllDigitalRewards\FIS\Exception\FisException;
 
 class Client
@@ -61,7 +62,7 @@ class Client
         return $this;
     }
 
-    public function getClientId():int
+    public function getClientId():?int
     {
         return $this->clientId;
     }
@@ -77,24 +78,54 @@ class Client
         return $this->development === true;
     }
 
+    public function getCardLevelId(Card $card): int
+    {
+        $cardLookupCondition = [
+            'cardnum' => $card->getNumber()
+        ];
+
+        if ($this->dispatchRequest("a2a/CO_GetAccountClient_ByCard.asp", $cardLookupCondition) === false) {
+            return false;
+        }
+
+        $vendorResponse = $this->getResponse();
+
+        return $vendorResponse[0];
+    }
+
     /**
      * @param string $proxyKey
      * @return Card|bool
      */
-    public function getCardByProxy(string $proxyKey)
+    public function getCardByProxy(string $proxyKey, $proxy = true)
     {
         $proxy = [
             'ProxyKey' => $proxyKey
         ];
 
-        if ($this->dispatchRequest("a2a/CO_GetPurseAcct_ByCardnum.asp", $proxy) === false) {
+        $card = $this->getCard($proxy);
+        $card->setProxy($proxyKey);
+        return $card;
+    }
+
+    public function getCardByNumber(string $number)
+    {
+        $number = [
+            'cardnum' => $number
+        ];
+
+        return $this->getCard($number);
+    }
+
+    private function getCard(array $cardLookupConditions)
+    {
+        if ($this->dispatchRequest("a2a/CO_GetPurseAcct_ByCardnum.asp", $cardLookupConditions) === false) {
             return false;
         }
 
         $vendorResponse = $this->getResponse();
 
         $card = new Card;
-        $card->setProxy($proxyKey);
         $card->setNumber($vendorResponse[9]);
         $card->setCvv2($vendorResponse[26]);
         $card->setBalance($vendorResponse[4]);
@@ -102,6 +133,92 @@ class Client
         $card->setCreationDate($vendorResponse[28]);
         $card->setExpirationDate($vendorResponse[11]);
         return $card;
+    }
+
+    /**
+     * @param Card $card
+     * @param \DateTime|null $fromDate
+     * @return Transaction[]
+     */
+    public function getCardTransactions(Card $card, ?\DateTime $fromDate = null, int $days = 90): array
+    {
+        if ($fromDate === null) {
+            //If no start date is provided, use 90 days ago.
+            $fromDate = (new \DateTime);
+        }
+
+        $cardTransactionLookupConditions = [
+            'cardnum' => $card->getNumber(),
+            'TxnType' => '32767',
+            'FieldList' => 'TranDate|PostDate|Merchant|Reference|Amt|TxnType',
+            'Days' => $days,
+            'StartDate' => $fromDate->format('Y-m-d')
+        ];
+
+        if ($this->dispatchRequest("/a2a/CO_GetCardTxns.asp", $cardTransactionLookupConditions) === false) {
+            //FIS returns 0 on empty result set.
+            return [];
+        }
+
+        $vendorResponse = $this->getResponse();
+        return $this->prepareCardTransactionResponse($vendorResponse);
+    }
+
+    /**
+     * @param array $response
+     * @return Transaction[]
+     */
+    private function prepareCardTransactionResponse(array $response)
+    {
+        $transactionResponseArray = array_chunk($response, 6);
+        $transactionContainer = [];
+
+        foreach ($transactionResponseArray as $transaction) {
+            if (strpos($transaction[5], 'Non-Mon Update') !== false
+                || strpos($transaction[5], 'Decline') !== false
+            ) {
+                continue;
+            }
+            $entity = new Transaction;
+            $entity->setTransactionDate($transaction[0]);
+            $entity->setPostDate($transaction[1]);
+            $entity->setMerchant($transaction[2]);
+            $entity->setReference($transaction[3]);
+            $entity->setAmount($transaction[4]);
+            $entity->setType($transaction[5]);
+            $transactionContainer[] = $entity;
+        }
+
+        return $transactionContainer;
+    }
+
+    /**
+     * @param Card $card
+     * @return Person|bool
+     */
+    public function getPersonByCard(Card $card)
+    {
+        $accountLookupCondition = [
+            'Cardnum' => $card->getNumber()
+        ];
+
+        if ($this->dispatchRequest("a2a/CO_Account_Search.asp", $accountLookupCondition) === false) {
+            return false;
+        }
+
+        $vendorResponse = $this->getResponse();
+
+        $person = new Person;
+        $person->setFisId($vendorResponse[3]);
+        $person->setFirstname($vendorResponse[4]);
+        $person->setLastname($vendorResponse[5]);
+        $person->setAddress1($vendorResponse[18]);
+        $person->setAddress2($vendorResponse[19]);
+        $person->setCity($vendorResponse[20]);
+        $person->setState($vendorResponse[21]);
+        $person->setZip($vendorResponse[22]);
+        $person->setCountryCode($vendorResponse[33]);
+        return $person;
     }
 
     /**
@@ -119,7 +236,6 @@ class Client
         }
 
         $vendorResponse = $this->getResponse();
-
         $person = new Person;
         $person->setFisId($vendorResponse[0]);
         $person->setFirstname($vendorResponse[7]);
@@ -177,19 +293,36 @@ class Client
     }
 
     /**
-     * @param Card $request
+     * @param Card $card
      * @return $this
      * @throws FisException
      */
-    public function activateCard(Card $request): Client
+    public function activateCard(Card $card): Client
     {
         $activation = [
-            "cardnum" => $request->getNumber(),
+            "cardnum" => $card->getNumber(),
             "Status" => "ACTIVATE"
         ];
 
         if ($this->dispatchRequest("a2a/CO_StatusAcct.asp", $activation) === false) {
             throw new FisException('Unable to activate panelist card');
+        }
+
+        return $this;
+    }
+
+    public function changeCardPin(Card $card, $pin)
+    {
+        $changePinRequest = [
+            'cardnum' => $card->getNumber(),
+            'newPIN' => $pin
+        ];
+
+        if (strlen($pin) !== 4
+            || ctype_digit($pin) === false
+            || $this->dispatchRequest("a2a/CO_ChangePIN.asp", $changePinRequest) === false
+        ) {
+            throw new FisException('Unable to change card pin.');
         }
 
         return $this;
@@ -201,7 +334,7 @@ class Client
      */
     public function getUrl(string $action): string
     {
-        $this->requestParameters['clientid'] = $this->getClientId();
+        $this->requestParameters['clientid'] = $this->getClientId() ?? "";
         $url = $this->development === true ? 'https://a2a.uatfisprepaid.com' : 'https://a2a.fisprepaid.com';
         $url = $url . '/' . $action . '?' . http_build_query($this->requestParameters);
         return $url;
@@ -262,7 +395,7 @@ class Client
     {
         $response = substr($responseString, 2);
         $response = substr($response, 0, -1);
-        return explode("|", $response);
+        return preg_split("/[|^]/", $response);
     }
 
     private function isRequestAccepted(): bool
