@@ -57,7 +57,7 @@ abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterfac
         return $data;
     }
 
-    public function hydrate(iterable $options)
+    public function hydrate(array $options)
     {
         $methods = get_class_methods($this);
         foreach ($options as $key => $value) {

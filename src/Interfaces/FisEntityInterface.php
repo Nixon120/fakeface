@@ -7,5 +7,5 @@ interface FisEntityInterface
 
     public function toArray():array;
 
-    public function hydrate(iterable $options);
+    public function hydrate(array $options);
 }
