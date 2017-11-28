@@ -62,7 +62,10 @@ class Client
         return $this;
     }
 
-    public function getClientId():?int
+    /**
+     * @return int|null
+     */
+    public function getClientId()
     {
         return $this->clientId;
     }
@@ -138,9 +141,10 @@ class Client
     /**
      * @param Card $card
      * @param \DateTime|null $fromDate
+     * @param int $days
      * @return Transaction[]
      */
-    public function getCardTransactions(Card $card, ?\DateTime $fromDate = null, int $days = 90): array
+    public function getCardTransactions(Card $card, \DateTime $fromDate = null, int $days = 90): array
     {
         if ($fromDate === null) {
             //If no start date is provided, use 90 days ago.

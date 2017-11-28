@@ -8,7 +8,7 @@ use Respect\Validation\Validator;
 
 abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterface
 {
-    public function __construct(?array $data = null)
+    public function __construct(array $data = null)
     {
         if (!is_null($data)) {
             $this->hydrate($data);
