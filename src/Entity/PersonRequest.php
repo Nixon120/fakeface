@@ -173,7 +173,7 @@ class PersonRequest extends AbstractFisEntity implements Validateable
         return Validator::attribute('firstname', Validator::alnum()->length(1, 50))
             ->attribute('lastname', Validator::alnum()->length(1, 50))
             ->attribute('addr1', Validator::alnum()->length(1, 50))
-            ->attribute('addr2', Validator::alnum()->length(1, 50))
+            ->attribute('addr2', Validator::optional(Validator::alnum()->length(1, 50)))
             ->attribute('city', Validator::alnum()->length(1, 35))
             ->attribute('state', Validator::alnum()->length(1, 25))
             ->attribute('zip', Validator::alnum()->length(1, 30))
