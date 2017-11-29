@@ -45,10 +45,6 @@ class CardLoadRequest extends AbstractFisEntity implements Validateable
     public function getValidator()
     {
         return Validator::attribute('cardnum', Validator::numeric()->length(1, 16))
-            ->attribute('amount', Validator::numeric()->length(1, 4));
-//            ->attribute('subProgId', Validator::alnum()->length(1, 50))
-//            ->attribute('pkgId', Validator::alnum()->length(1, 50))
-//            ->attribute('personId', Validator::alnum()->length(1, 35));
-//            ->attribute('last', Validator::alnum()->length(1, 25));
+            ->attribute('amount', Validator::numeric()->length(0, 4));
     }
 }
