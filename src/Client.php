@@ -114,7 +114,7 @@ class Client
     public function getCardByNumber(string $number)
     {
         $number = [
-            'cardnum' => $number
+            'cardnum' => preg_replace('/\s+/', '', $number)
         ];
 
         return $this->getCard($number);
