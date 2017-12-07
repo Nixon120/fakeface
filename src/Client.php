@@ -98,7 +98,8 @@ class Client
 
     /**
      * @param string $proxyKey
-     * @return Card|bool
+     * @param bool $proxy
+     * @return Card
      */
     public function getCardByProxy(string $proxyKey, $proxy = true)
     {
@@ -111,6 +112,10 @@ class Client
         return $card;
     }
 
+    /**
+     * @param string $number
+     * @return Card
+     */
     public function getCardByNumber(string $number)
     {
         $number = [
