@@ -88,7 +88,7 @@ class Client
         ];
 
         if ($this->dispatchRequest("a2a/CO_GetAccountClient_ByCard.asp", $cardLookupCondition) === false) {
-            return false;
+            throw new FisException('Unable to fetch level id');
         }
 
         $vendorResponse = $this->getResponse();
@@ -98,7 +98,8 @@ class Client
 
     /**
      * @param string $proxyKey
-     * @return Card|bool
+     * @param bool $proxy
+     * @return Card
      */
     public function getCardByProxy(string $proxyKey, $proxy = true)
     {
@@ -111,6 +112,10 @@ class Client
         return $card;
     }
 
+    /**
+     * @param string $number
+     * @return Card
+     */
     public function getCardByNumber(string $number)
     {
         $number = [
@@ -120,10 +125,15 @@ class Client
         return $this->getCard($number);
     }
 
+    /**
+     * @param array $cardLookupConditions
+     * @return Card
+     * @throws FisException
+     */
     private function getCard(array $cardLookupConditions)
     {
         if ($this->dispatchRequest("a2a/CO_GetPurseAcct_ByCardnum.asp", $cardLookupConditions) === false) {
-            return false;
+            throw new FisException('Unable to fetch card');
         }
 
         $vendorResponse = $this->getResponse();
@@ -198,7 +208,8 @@ class Client
 
     /**
      * @param Card $card
-     * @return Person|bool
+     * @return Person
+     * @throws FisException
      */
     public function getPersonByCard(Card $card)
     {
@@ -207,7 +218,7 @@ class Client
         ];
 
         if ($this->dispatchRequest("a2a/CO_Account_Search.asp", $accountLookupCondition) === false) {
-            return false;
+            throw new FisException('Unable to fetch account');
         }
 
         $vendorResponse = $this->getResponse();
@@ -227,7 +238,8 @@ class Client
 
     /**
      * @param int $fisPersonId
-     * @return Person|bool
+     * @return Person
+     * @throws FisException
      */
     public function getPersonById(int $fisPersonId)
     {
@@ -236,7 +248,7 @@ class Client
         ];
 
         if ($this->dispatchRequest("a2a/CO_GetPersonInfo.asp", $proxy) === false) {
-            return false;
+            throw new FisException('Unable to fetch account');
         }
 
         $vendorResponse = $this->getResponse();
