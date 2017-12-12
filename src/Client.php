@@ -99,7 +99,7 @@ class Client
     /**
      * @param string $proxyKey
      * @param bool $proxy
-     * @return Card
+     * @return Card|boolean
      */
     public function getCardByProxy(string $proxyKey, $proxy = true)
     {
@@ -108,7 +108,13 @@ class Client
         ];
 
         $card = $this->getCard($proxy);
+
+        if($card === false) {
+            return false;
+        }
+
         $card->setProxy($proxyKey);
+
         return $card;
     }
 
