@@ -1,12 +1,14 @@
 <?php
+
 namespace AllDigitalRewards\FIS;
 
 use AllDigitalRewards\FIS\Entity\Card;
 use AllDigitalRewards\FIS\Entity\CardCreateRequest;
 use AllDigitalRewards\FIS\Entity\CardLoadRequest;
-use AllDigitalRewards\FIS\Entity\PersonRequest;
 use AllDigitalRewards\FIS\Entity\Person;
+use AllDigitalRewards\FIS\Entity\PersonRequest;
 use AllDigitalRewards\FIS\Entity\Transaction;
+use AllDigitalRewards\FIS\Entity\ZeroPurseRequest;
 use AllDigitalRewards\FIS\Exception\FisException;
 
 class Client
@@ -39,8 +41,11 @@ class Client
     /**
      * constructor
      */
-    public function __construct(\GuzzleHttp\Client $httpClient, array $parameters, $development = true)
-    {
+    public function __construct(
+        \GuzzleHttp\Client $httpClient,
+        array $parameters,
+        $development = true
+    ) {
         $this->httpClient = $httpClient;
         $this->requestParameters = [
             'userid' => $parameters['userId'],
@@ -76,7 +81,7 @@ class Client
         return $this;
     }
 
-    public function isDevelopmentMode():bool
+    public function isDevelopmentMode(): bool
     {
         return $this->development === true;
     }
@@ -109,7 +114,7 @@ class Client
 
         $card = $this->getCard($proxy);
 
-        if($card === false) {
+        if ($card === false) {
             return false;
         }
 
@@ -268,6 +273,7 @@ class Client
         $person->setState($vendorResponse[15]);
         $person->setZip($vendorResponse[16]);
         $person->setCountryCode($vendorResponse[18]);
+
         return $person;
     }
 
@@ -333,6 +339,20 @@ class Client
         return $this;
     }
 
+    public function zeroPurse(ZeroPurseRequest $zeroPurseRequest)
+    {
+        $request = [
+            "ProxyKey" => $zeroPurseRequest->getProxyKey(),
+            "Status" => $zeroPurseRequest->getStatus()
+        ];
+
+        if ($this->dispatchRequest("a2a/CO_StatusAcct_ZeroPurse.asp", $request) === false) {
+            throw new FisException('Unable to Zero Purse.');
+        }
+
+
+    }
+
     public function changeCardPin(Card $card, $pin)
     {
         $changePinRequest = [
@@ -390,6 +410,7 @@ class Client
         }
 
         $this->setResponseString((string)$response->getBody());
+
         if ($this->isRequestAccepted()) {
             //@TODO pipe traversal would be nice here
             $this->setResponse(
@@ -422,7 +443,7 @@ class Client
 
     private function isRequestAccepted(): bool
     {
-        return ((int) mb_substr($this->responseString, 0, 1)) === 1;
+        return ((int)mb_substr($this->responseString, 0, 1)) === 1;
     }
 
     private function setResponseString(string $response)
@@ -430,7 +451,7 @@ class Client
         $this->responseString = $response;
     }
 
-    private function getResponseString():string
+    private function getResponseString(): string
     {
         return $this->responseString;
     }

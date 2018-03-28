@@ -1,10 +1,9 @@
 <?php
+
 namespace AllDigitalRewards\FIS\Entity;
 
-use AllDigitalRewards\FIS\Exception\FisException;
 use AllDigitalRewards\FIS\Interfaces\FisEntityInterface;
 use Respect\Validation\Exceptions\NestedValidationException;
-use Respect\Validation\Validator;
 
 abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterface
 {
@@ -18,7 +17,7 @@ abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterfac
     public function isValid(): bool
     {
         try {
-            $this->getValidator()->assert((object) $this->toArray());
+            $this->getValidator()->assert((object)$this->toArray());
             return true;
         } catch (NestedValidationException $exception) {
             return false;
@@ -28,23 +27,16 @@ abstract class AbstractFisEntity implements \JsonSerializable, FisEntityInterfac
     public function getValidationErrors(): array
     {
         try {
-            $this->getValidator()->assert((object) $this->toArray());
+            $this->getValidator()->assert((object)$this->toArray());
             return [];
         } catch (NestedValidationException $exception) {
             return $exception->getMessages();
         }
     }
 
-    /**
-     * @return Validator
-     * @throws \Exception if called and stubbed method not replaced
-     */
-    public function getValidator()
-    {
-        throw new FisException('Entity does not have validation rules');
-    }
+    abstract public function getValidator();
 
-    public function toArray():array
+    public function toArray(): array
     {
         $data = call_user_func('get_object_vars', $this);
 

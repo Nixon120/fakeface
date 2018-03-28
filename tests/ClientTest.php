@@ -1,13 +1,6 @@
 <?php
 namespace AllDigitalRewards\FIS;
 
-use AllDigitalRewards\FIS\Entity\Card;
-use AllDigitalRewards\FIS\Entity\CardCreateRequest;
-use AllDigitalRewards\FIS\Entity\CardLoadRequest;
-use AllDigitalRewards\FIS\Entity\Person;
-use AllDigitalRewards\FIS\Entity\PersonRequest;
-use AllDigitalRewards\FIS\Exception\FisException;
-use AllDigitalRewards\FIS\Interfaces\Validateable;
 use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase

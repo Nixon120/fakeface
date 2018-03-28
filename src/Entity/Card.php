@@ -144,4 +144,9 @@ class Card extends AbstractFisEntity
     {
         $this->creation_date = $creation_date;
     }
+
+    public function getValidator()
+    {
+
+    }
 }
