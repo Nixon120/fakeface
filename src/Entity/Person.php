@@ -158,4 +158,9 @@ class Person extends AbstractFisEntity
     {
         return $this->fis_id;
     }
+
+    public function getValidator()
+    {
+
+    }
 }
