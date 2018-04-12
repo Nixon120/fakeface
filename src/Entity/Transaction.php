@@ -134,4 +134,9 @@ class Transaction extends AbstractFisEntity
     {
         return $this->type === 'Adjustment' || $this->type === 'Deposit';
     }
+
+    public function getValidator()
+    {
+        // TODO: Implement getValidator() method.
+    }
 }

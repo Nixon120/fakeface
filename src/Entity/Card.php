@@ -8,9 +8,6 @@ class Card extends AbstractFisEntity
      */
     public $number;
 
-    /**
-     * @var string
-     */
     public $proxy;
 
     public $status;
@@ -50,17 +47,17 @@ class Card extends AbstractFisEntity
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getProxy(): string
+    public function getProxy()
     {
         return $this->proxy;
     }
 
     /**
-     * @param string $proxy
+     * @param mixed $proxy
      */
-    public function setProxy(string $proxy)
+    public function setProxy($proxy)
     {
         $this->proxy = $proxy;
     }
